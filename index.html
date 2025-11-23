@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <link href="https://fonts.googleapis.com/css2?family=League+Spartan:wght@400;700&display=swap" rel="stylesheet">
+   <link rel="icon" href="toitoi.png" type="image/png">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ToiToi Tracker</title>
+
+  <style>
+
+.main-title {
+  position: absolute;              /* place the title at an exact spot */
+  top: 55%;                        /* move it down 55% of the screen */
+  left: 40%;                       /* move it right 40% of the screen */
+  transform: translate(-50%, -50%);/* center the text around that point */
+  color: black;                    /* black text */
+  font-size: 60px;                 /* big text size */
+  font-weight: 700;                /* bold text */
+  letter-spacing: 1px;             /* small space between letters */
+}
+
+
+.word1 {
+  position: relative;
+  display: inline-block;
+}
+
+.word2 {
+  position: relative;              /* allows small movement */
+  left: -15px;                     /* move the text a little left */
+  font-size: 50px;                 /* slightly smaller text */
+}
+
+
+body {
+  margin: 0;
+  height: 100vh;
+  background-color: #07829d;
+  overflow: hidden;
+  font-family: "League Spartan", sans-serif;
+}
+
+.toitoi-container {
+  position: relative;   /* this block is the base for all small logos */
+  width: 100%;          
+  height: 100%;         
+  opacity: 0.15;        /* makes all logos very light / faded */
+  pointer-events: none; /* cannot click the logos */
+}
+
+.toitoi {
+  position: absolute;       /* each logo can be placed anywhere */
+  transform-origin: center; /* rotate from the middle */
+}
+
+.logo {
+  width: 160px;                         /* size of the square logo */
+  height: 160px;
+  border: 5px solid rgba(255,255,255,0.6); /* white transparent border */
+  background-color: transparent;        /* no background inside */
+  color: black;                         /* black text */
+  font-weight: bold;                    /* thick text */
+  display: flex;                        /* use flexbox */
+  justify-content: flex-end;            /* text goes bottom-right */
+  align-items: flex-end;
+  padding: 8px;                         /* space inside */
+  opacity: 0.9;                         /* a bit transparent */
+  font-size: 85px;                      /* size of "TOI TOI" letters */
+  user-select: none;                    /* cannot select the text */
+  position: relative;                   /* needed for the heart */
+}
+
+
+/* Small red heart */
+.heart {
+  position: absolute;          /* place in the corner */
+  top: 19px;                   /* move down a little */
+  right: 15px;                 /* move left a little */
+  width: 11px;                 /* heart size */
+  height: 11px;
+  background-color: red;       /* red color */
+  transform: rotate(-45deg);   /* tilt to make heart shape */
+  border-radius: 2px 0 0 2px;  /* round the left side */
+}
+
+/* Two circles added to form the heart shape */
+.heart::before,
+.heart::after {
+  content: "";
+  position: absolute;
+  width: 11px;
+  height: 11px;
+  background-color: red;
+  border-radius: 50%;          /* makes them circles */
+}
+
+.heart::before { top: -8px; left: 0; }  /* left circle */
+.heart::after  { top: 0; left: 8px; }   /* right circle */
+
+/* Text inside the ToiToi logo */
+.logo span {
+  letter-spacing: 0.5px;   /* small space between letters */
+  line-height: 0.75;       /* lines stay close together */
+  position: relative;      /* allows small movement */
+  bottom: -5px;            /* moves text slightly down */
+}
+
+
+.side-image {
+  position: absolute;          /* place the image in an exact spot */
+  right: 3%;                   /* move it 3% away from the right edge */
+  top: 50%;                    /* place it halfway down the page */
+  transform: translateY(-50%); /* center it vertically */
+  width: 550px;                /* size of the image */
+  height: auto;                /* keep natural proportions */
+  border-radius: 10px;         /* rounded corners */
+  box-shadow: 0 0 20px rgba(0,0,0,0); /* shadow (currently invisible) */
+  opacity: 1;                  /* image is fully visible */
+}
+
+
+.logo-dark {
+  position: relative;          /* allows small inside movement */
+  width: 180px;                /* logo width */
+  height: 180px;               /* logo height */
+  border: 5px solid black;     /* thick black border */
+  background-color: white;     /* white background inside */
+  color: black;                /* black text color */
+  font-weight: bold;           /* bold text */
+  text-align: right;           /* text is aligned to the right side */
+  display: flex;               /* use flexbox for layout */
+  justify-content: flex-end;   /* text goes to the bottom-right */
+  align-items: flex-end;       /* also bottom-right alignment */
+  padding: 8px;                /* small space inside the box */
+  opacity: 0.95;               /* slightly transparent */
+  user-select: none;           /* text cannot be selected */
+  font-size: 85px;             /* large text size */
+}
+
+
+.logo-dark span {
+  position: relative;      /* allows moving the text a little */
+  bottom: 15px;            /* moves the text down */
+  line-height: 0.75;       /* closer lines (TOI above TOI) */
+  letter-spacing: 0.5px;   /* small space between letters */
+}
+
+
+.logo-dark .heart {
+  top: 20px;         /* moves the heart a bit lower */
+  right: 15.5px;     /* moves the heart slightly left or right */
+}
+
+
+.subtext {
+  position: absolute;     /* place this word in a fixed spot */
+  bottom: 0px;            /* stick to the bottom of the logo */
+  right: 10px;            /* move it a bit from the right side */
+  font-size: 35px;        /* text size */
+  color: black;           /* text color */
+  font-weight: 700;       /* bold text */
+  letter-spacing: 0.5px;  /* small spacing between letters */
+  text-transform: lowercase; /* make all letters small */
+}
+
+
+/* Fade screen used before going to Google Maps */
+.fade-screen {
+  position: fixed;            /* stays in the same place on the screen */
+  top: 0;                     /* starts at the top edge */
+  left: 0;                    /* starts at the left edge */
+  width: 100%;                /* covers the whole screen (full width) */
+  height: 100%;               /* full screen height */
+  background-color: #07829d;  /* blue color (same as your page) */
+  opacity: 0;                 /* hidden at the start */
+  pointer-events: none;       /* cannot click through it */
+  transition: opacity 1.5s ease; /* fades in smoothly */
+  z-index: 9999;              /* stays above most other elements */
+}
+
+.toitoi-photo {
+  position: absolute;
+  right: 3%;
+  top: 50%;
+  transform: translateY(-50%); /* centers it vertically */
+  width: 550px;
+  height: auto;
+}
+
+.toitoi-photo .toitoi-base {
+  width: 100%;                /* image takes full width of the container */
+  display: block;             /* removes small gaps around images */
+}
+
+/* The door image that is on the toi toi */
+.door-overlay {
+  position: absolute;              
+  top: 150px;                      /* move the door down */
+  left: 1104px;                    /* move the door to the right */
+  width: 12%;                      /* size of the door (width) */
+  height: 65%;                     /* size of the door (height) */
+  object-fit: cover;               /* make the image fit without stretching */
+  pointer-events: none;            /* mouse cannot click the door */
+  transform-origin: left center;   /* door rotates from the left side */
+  transition: transform 1.5s ease; /* smooth door-opening animation */
+  transform: perspective(800px) rotateY(0deg); /* door starts closed */
+}
+
+.door-open {
+  transform: perspective(800px) rotateY(-92deg); /* doors open */
+}
+
+.cat {
+  position: absolute;          /* place the cat at an exact spot */
+  top: 30px;                   /* move it down 30px inside the toilet */
+  left: 150px;                 /* move it right 150px to center it */
+  width: 200px;                /* cat image size */
+  height: auto;                /* keep the correct proportions */
+  object-fit: contain;         /* fit the image inside its box without stretching */
+  z-index: 3;                  /* cat appears above the inside background */
+
+  opacity: 0;                  /* cat is hidden at the start */
+  transition: opacity 1.5s ease; /* fades in smoothly */
+}
+
+.cat-show {
+  opacity: 1;                  /* makes the cat visible */
+}
+
+
+.inside-bg {
+  position: absolute;          /* place the inside image at an exact spot */
+  top: -180px;                 /* move it up inside the door opening */
+  left: 163px;                 /* place it correctly behind the door */
+  width: 184px;                /* inside width */
+  height: 447px;               /* inside height */
+  background: white;           /* white background (later replaced by your image) */
+  border-radius: 4px;          /* slightly rounded corners */
+
+  opacity: 0;                  /* hidden at the start */
+  transition: opacity 0.6s ease; /* fades in when shown */
+
+  z-index: 2;                  /* behind the cat but above the door */
+}
+
+.inside-show {
+  opacity: 1;                  /* makes the inside area visible */
+}
+
+
+#loading-section {
+  position: absolute;          /* place it at an exact spot on the page */
+  bottom: 30px;                /* move it 30px above the bottom of the screen */
+  left: 50%;                   /* place it at the center (left side at 50%) */
+  transform: translateX(-50%); /* shift it left so it's perfectly centered */
+  text-align: center;          /* center the text inside */
+  color: white;                /* text color is white */
+  font-size: 24px;             /* size of the text */
+  font-family: "League Spartan", sans-serif; /* font style */
+  opacity: 0;                  /* hidden at the start */
+  transition: opacity 1s ease; /* fades in smoothly when opacity changes */
+  z-index: 9999;               /* stays above most elements */
+}
+
+.load-bar {
+  width: 300px;
+  height: 12px;
+  border: 2px solid white;
+  border-radius: 10px;
+  margin: 10px auto 0 auto;
+  overflow: hidden;
+}
+
+.load-fill {
+  width: 0%;
+  height: 100%;
+  background: white;
+  transition: width 2.5s linear;
+}
+
+/* Blue wave screen */
+#wave {
+  position: fixed;        /* stays in one place even when page scrolls */
+  top: 0;                 /* start at the very top of the screen */
+  left: 0;                /* start at the very left of the screen */
+  width: 100%;            /* full screen width */
+  height: 100%;           /* full screen height */
+  background: #07829d;    /* blue color of the wave */
+  z-index: 99999;         /* on top of all other elements */
+  transform: translateX(0); /* start with no movement */
+  animation: waveSweep 3s ease forwards; /* play wave animation for 3 seconds */
+}
+
+/* Title hidden at the start */
+.main-title {
+  opacity: 0;             /* title is not visible */
+  transition: opacity 3.5s ease; /* fade-in effect for the title */
+}
+
+/* Title becomes visible */
+.title-show {
+  opacity: 1;             /* title fades in */
+}
+
+/* Wave animation */
+@keyframes waveSweep {
+  0% {
+    transform: translateX(0);     /* wave starts on screen */
+  }
+  100% {
+    transform: translateX(120%);  /* wave moves to the right and leaves the screen */
+  }
+}
+
+  </style>
+</head>
+<body>
+<div id="wave"></div>
+
+<!--
+  <div class="toitoi" style="top: 65%; left: -9%; transform: rotate(50deg) scale(0.8);">
+
+  Purpose:
+    Places one background ToiToi logo on the screen.
+
+  Container logic:
+    top: 65%        – vertical position of the whole logo.
+    left: -9%       – horizontal position
+    rotate(50deg)   – rotates the entire logo
+    scale(0.8)      – makes the logo smaller.
+
+  Inner structure:
+    <div class="logo">
+      – The square visual frame of the ToiToi logo.
+      – Holds both the heart and the text.
+
+      <div class="heart">
+        – Small red heart placed in the top-right corner
+        – Created with CSS shapes
+
+      <span>TOI<br>TOI</span>
+        – The ToiToi text.
+        – "TOI" appears on the first line, second "TOI" on the next line.
+        – Styled to match the original ToiToi logo typography.
+
+  Summary:
+    This element creates one ToiToi logo with rotation,
+    scaling, and styling (square frame, heart icon, and text).
+-->
+
+  <div class="toitoi-container">
+
+    <div class="toitoi" style="top: 65%; left: -9%; transform: rotate(50deg) scale(0.8);">
+      <div class="logo"><div class="heart"></div><span>TOI<br>TOI</span></div>
+    </div>
+
+    <div class="toitoi" style="top: 90%; left: 5%; transform: rotate(25deg) scale(1.4);">
+      <div class="logo"><div class="heart"></div><span>TOI<br>TOI</span></div>
+    </div>
+
+    <div class="toitoi" style="top: 51%; left: 3%; transform: rotate(5deg) scale(0.9);">
+      <div class="logo"><div class="heart"></div><span>TOI<br>TOI</span></div>
+    </div>
+
+    <div class="toitoi" style="top: 63%; left: 15%; transform: rotate(-20deg) scale(0.6);">
+      <div class="logo"><div class="heart"></div><span>TOI<br>TOI</span></div>
+    </div>
+
+    <div class="toitoi" style="top: 50%; left: 28%; transform: rotate(10deg) scale(0.9);">
+      <div class="logo"><div class="heart"></div><span>TOI<br>TOI</span></div>
+    </div>
+
+    <div class="toitoi" style="top: 35%; left: 16%; transform: rotate(40deg) scale(0.7);">
+      <div class="logo"><div class="heart"></div><span>TOI<br>TOI</span></div>
+    </div>
+
+    <div class="toitoi" style="top: 27%; left: 5%; transform: rotate(20deg) scale(0.5);">
+      <div class="logo"><div class="heart"></div><span>TOI<br>TOI</span></div>
+    </div>
+
+    <div class="toitoi" style="top: 27%; left: -10%; transform: rotate(-30deg) scale(1.1);">
+      <div class="logo"><div class="heart"></div><span>TOI<br>TOI</span></div>
+    </div>
+
+    <div class="toitoi" style="top: 4%; left: 2%; transform: rotate(10deg) scale(0.8);">
+      <div class="logo"><div class="heart"></div><span>TOI<br>TOI</span></div>
+    </div>
+
+    <div class="toitoi" style="top: 5%; left: 17%; transform: rotate(-5deg) scale(1);">
+      <div class="logo"><div class="heart"></div><span>TOI<br>TOI</span></div>
+    </div>
+
+    <div class="toitoi" style="top: -17%; left: 7%; transform: rotate(-18deg) scale(0.5);">
+      <div class="logo"><div class="heart"></div><span>TOI<br>TOI</span></div>
+    </div>
+
+    <div class="toitoi" style="top: 22%; left: 30%; transform: rotate(-10deg) scale(0.8);">
+      <div class="logo"><div class="heart"></div><span>TOI<br>TOI</span></div>
+    </div>
+
+    <div class="toitoi" style="top: -2%; left: 30%; transform: rotate(14deg) scale(0.5);">
+      <div class="logo"><div class="heart"></div><span>TOI<br>TOI</span></div>
+    </div>
+
+    <div class="toitoi" style="top: -21%; left: 34%; transform: rotate(22deg) scale(0.7);">
+      <div class="logo"><div class="heart"></div><span>TOI<br>TOI</span></div>
+    </div>
+
+    <div class="toitoi" style="top: 7%; left: 43%; transform: rotate(8deg) scale(1);">
+      <div class="logo"><div class="heart"></div><span>TOI<br>TOI</span></div>
+    </div>
+
+    <div class="toitoi" style="top: 0%; left: 56%; transform: rotate(-10deg) scale(0.7);">
+      <div class="logo"><div class="heart"></div><span>TOI<br>TOI</span></div>
+    </div>
+
+    <div class="toitoi" style="top: -12%; left: 65%; transform: rotate(-3deg) scale(0.55);">
+      <div class="logo"><div class="heart"></div><span>TOI<br>TOI</span></div>
+    </div>
+
+    <div class="toitoi" style="top: 6%; left: 69%; transform: rotate(-14deg) scale(0.65);">
+      <div class="logo"><div class="heart"></div><span>TOI<br>TOI</span></div>
+    </div>
+
+    <div class="toitoi" style="top: -3%; left: 78%; transform: rotate(10deg) scale(0.55);">
+      <div class="logo"><div class="heart"></div><span>TOI<br>TOI</span></div>
+    </div>
+
+    <div class="toitoi" style="top: -11%; left: 88%; transform: rotate(-9deg) scale(0.7);">
+      <div class="logo"><div class="heart"></div><span>TOI<br>TOI</span></div>
+    </div>
+
+  </div>
+  
+<!--
+  This block shows the main ToiToi picture.
+
+  image.png       – the outside of the ToiToi toilet.
+  toiinside.jpg   – the inside view (hidden at first, shown after door opens).
+  cat.png         – the cat inside (hidden at first, shown later).
+
+  Simple idea:
+  This is the main ToiToi model: outside picture, inside background, and the cat.
+-->
+<div class="toitoi-photo">
+  <img src="image.png" alt="ToiToi" class="side-image">
+  <img src="toiinside.jpg" alt="Inside" class="inside-bg">
+  <img src="cat.png" alt="Cat" class="cat">
+</div>
+
+<!-- Door -->
+<img src="door.png" alt="Door" class="door-overlay">
+
+<!-- Loading -->
+<div id="loading-section">
+  <p>Loading...</p>
+  <div class="load-bar"><div class="load-fill"></div></div>
+</div>
+
+<!--
+  This is the main dark ToiToi logo.
+  Purpose:
+    - Shows the official logo in black and white.
+    - Placed at the top-left area of the page.
+
+  Inside:
+    <div class="logo-dark"> – the dark square logo box.
+    <div class="heart">     – small red heart in the corner.
+    <span>TOI TOI</span>    – the main logo text (two lines).
+    <div class="subtext">   – the word "tracker" under the logo.
+-->
+<div class="toitoi" style="top: 20%; left: 20%; transform: rotate(0deg) scale(1);">
+  <div class="logo-dark">
+    <div class="heart"></div>
+    <span>TOI<br>TOI</span>
+    <div class="subtext">tracker</div>
+  </div>
+</div>
+
+<!--
+  Page title text.
+
+  <br> means line break.
+
+
+  What it does:
+    - Shows the main message on the screen.
+    - "peace" is styled separately.
+    - The second line says "Stay clean".
+
+  fade-screen:
+    - A full-screen layer used for fade-out animation before opening Google Maps.
+-->
+<h1 class="main-title">
+  <span class="word1">Find your peace</span><br>
+  <span class="word2">&amp; Stay clean</span>
+</h1>
+
+<div id="fade" class="fade-screen"></div>
+
+
+<script>
+window.addEventListener("load", () => {
+
+  /* Get all the elements we will use */
+  const title = document.querySelector(".main-title");     // the big text on the screen
+  const door = document.querySelector(".door-overlay");    // the door image
+  const inside = document.querySelector(".inside-bg");     // the inside picture
+  const cat = document.querySelector(".cat");              // the cat image
+  const loadingSection = document.getElementById("loading-section"); // "loading..." area
+  const loadingFill = document.querySelector(".load-fill");           // white bar that fills
+  const fade = document.getElementById("fade");            // fade screen for map transition
+
+  /* Step 1: wait before starting all animations */
+  setTimeout(() => {
+
+    /* Step 2: show the main title by fading it in */
+    title.classList.add("title-show");
+
+    /* Step 3: open the door (door rotates) */
+    door.classList.add("door-open");
+
+    /* Step 4: show the inside picture behind the door */
+    inside.classList.add("inside-show");
+
+    /* Step 5: show the cat inside the toilet */
+    cat.classList.add("cat-show");
+
+    /* Step 6: after 1 second, show the loading bar */
+    setTimeout(() => {
+
+      /* make the loading section visible */
+      loadingSection.style.opacity = "1";
+
+      /* start filling the loading bar from 0% to 100% */
+      loadingFill.style.width = "100%";
+
+      /* Step 7: after 5 seconds, start the fade-out screen */
+      setTimeout(() => {
+
+        /* fade screen becomes visible */
+        fade.style.opacity = "1";
+
+        /* fade screen blocks clicks (very normal for transitions) */
+        fade.style.pointerEvents = "auto";
+
+        /* Step 8: after fade is fully shown, go to Google Maps */
+        setTimeout(() => {
+          window.location.href = "https://www.google.com/maps";
+        }, 1500); // wait 1.5 seconds for fade to finish
+
+      }, 5000); // wait 5 seconds before fade starts
+
+    }, 1000); // wait 1 second after cat appears
+
+  }, 2000); // wait 2 seconds before everything starts
+
+});
+</script>
+
+<div id="map" style="width:100%; height:100vh;"></div>
+<!--
+<script>
+function initMap() {
+
+  const vilniusBounds = {
+    north: 54.8325,
+    south: 54.5694,
+    east: 25.4592,
+    west: 25.0219,
+  };
+
+  const centerVilnius = { lat: 54.6872, lng: 25.2797 };
+
+  const map = new google.maps.Map(document.getElementById("map"), {
+    center: centerVilnius,
+    zoom: 12,
+    minZoom: 11,        
+    maxZoom: 18,        
+    restriction: {
+      latLngBounds: vilniusBounds,
+      strictBounds: true, 
+    },
+    gestureHandling: "greedy",
+  });
+}
+</script>
+
+<script async
+        src="https://maps.googleapis.com/maps/api/js?key=YOUR_API&callback=initMap">
+</script>
+
+-->
+
+</body>
+</html>
