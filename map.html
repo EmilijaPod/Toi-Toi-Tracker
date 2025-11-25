@@ -206,7 +206,7 @@
   <div class="hint">Map is locked to Vilnius area.</div>
 
 
-  <!-- ===== MODAL ===== -->
+  <!-- MODAL-->
   <div id="review-modal" class="modal-hidden">
     <div class="modal-backdrop"></div>
 
@@ -235,7 +235,7 @@
     });
 
     async function initMap() {
-      // 🔹 Берём данные из БД через get_data.php
+      // take data from get_data.php
       const apiData = await fetch("get_data.php").then(r => r.json());
       const toilets = apiData.toilets;
       const reviews = apiData.reviews;
@@ -316,8 +316,7 @@
     let currentToiletId = null;
     let currentRating = 0;
 
-    // Открытие модалки при клике на кнопку в InfoWindow
-    document.body.addEventListener("click", e => {
+      document.body.addEventListener("click", e => {
       if (e.target.classList.contains("add-review-btn")) {
         currentToiletId = e.target.dataset.id;
         document.getElementById("modal-toilet-name").textContent = e.target.dataset.name;
@@ -325,7 +324,7 @@
       }
     });
 
-    // Выбор рейтинга (звёздочки)
+    // choose rating
     document.querySelectorAll("#modal-stars span").forEach((s, i) => {
       s.onclick = () => {
         currentRating = i + 1;
@@ -336,7 +335,7 @@
       };
     });
 
-    // Закрытие модалки
+    // close modal
     document.getElementById("modal-cancel").onclick = () => {
       document.getElementById("review-modal").classList.add("modal-hidden");
       currentRating = 0;
