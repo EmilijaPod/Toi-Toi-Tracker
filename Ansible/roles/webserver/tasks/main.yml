@@ -1,0 +1,116 @@
+---
+- name: Install Docker dependencies
+  apt:
+    name: [docker.io, python3-docker]
+    state: present
+    update_cache: yes
+
+# Konfiguruojama DNS serveris, kad Dockeris turėtų internetą konfiguracijos metu (Neveikė be jo)
+- name: Configure DNS for Docker
+  copy:
+    content: |
+      nameserver 8.8.8.8
+      nameserver 8.8.4.4
+    dest: /etc/resolv.conf
+    mode: '0644'
+
+- name: Create Build Context
+  file:
+    path: /opt/toitoi_build
+    state: directory
+    mode: '0755'
+
+- name: Copy Build Scripts and Config
+  copy:
+    src: "{{ item }}"
+    dest: "/opt/toitoi_build/{{ item }}"
+    mode: '0755'
+  loop:
+    - lamp_build.sh
+    - nginx.conf
+
+# Kopijuojame visą HTML aplanką su reikiamais failais
+- name: Copy Website Files
+  copy:
+    src: html
+    dest: /opt/toitoi_build/
+
+# DB IP paėmimas iš inventory ir įrašymas į failą.
+- name: Configure DB Connection in db.php
+  # Failo turinio pakeitimui
+  lineinfile:
+    path: /opt/toitoi_build/html/db.php
+    # Ieškoma host eilute, kad pasikeistu į IP adresą
+    regexp: '^\$host ='
+    line: '$host = "{{ db_ip }}";'
+
+- name: Configure DB Password in db.php
+  lineinfile:
+    path: /opt/toitoi_build/html/db.php
+    regexp: '^\$pass ='
+    line: '$pass = "secret";'
+
+
+# Sukuriamas Dockerfailas pačiame serveryje
+- name: Create Dockerfile
+  copy:
+    dest: /opt/toitoi_build/Dockerfile
+    content: |
+      FROM debian:12
+      ENV DEBIAN_FRONTEND=noninteractive
+
+      # Instaliuojame bibliotekas, reikalingas kompiliavimui
+      RUN apt-get update && apt-get install -y \
+          build-essential wget libssl-dev zlib1g-dev libxml2-dev \
+          libsqlite3-dev libcurl4-openssl-dev libonig-dev libpq-dev pkg-config \
+          libpcre3 libpcre3-dev libpcre2-dev default-libmysqlclient-dev \
+          && rm -rf /var/lib/apt/lists/*
+
+      # Paleidžiamas LAMP skriptas
+      COPY lamp_build.sh /tmp/lamp_build.sh
+      RUN chmod +x /tmp/lamp_build.sh && /bin/bash /tmp/lamp_build.sh
+
+      # Sukuriame www-data vartotoją
+      RUN useradd -r -s /bin/false www-data || true
+      RUN mkdir -p /var/www/html
+
+      # Kopijuojame mime.types ir fastcgi_params iš sukompiliuoto nginx, kad išvengtume klaidos
+      RUN cp /opt/nginx/conf/mime.types.default /opt/nginx/conf/mime.types || true
+      RUN cp /opt/nginx/conf/fastcgi_params.default /opt/nginx/conf/fastcgi_params || true
+
+      # Konfigūracija
+      COPY nginx.conf /opt/nginx/conf/nginx.conf
+
+      # Svetainės failai
+      COPY html/ /var/www/html/
+      RUN chown -R www-data:www-data /var/www/html
+      # Atidaromas port
+      EXPOSE 80
+
+      # Paleidžiame PHP-FPM ir Nginx
+      CMD /opt/php/sbin/php-fpm -D && /opt/nginx/sbin/nginx -g "daemon off;"
+
+# Sukuriame Docker nuotrauką iš sukurto DockerFile
+- name: Build Docker Image
+  community.docker.docker_image:
+    name: toitoi_lamp
+    build:
+      path: /opt/toitoi_build
+      network: host
+    source: build
+    force_source: yes
+  vars:
+    ansible_command_timeout: 3600 # Ilgam kompiliavimui
+
+- name: Run Webserver
+  community.docker.docker_container:
+    name: website
+    image: toitoi_lamp
+    state: started
+    ports: ["80:80"]
+    restart_policy: always # Perkrovimas
+    # Perdavimas kintamųjų
+    env:
+      DB_HOST: "{{ db_ip }}"
+      DB_USER: "root"
+      DB_PASS: "secret"

@@ -1,0 +1,57 @@
+---
+# 1. DB VM Kūrimas (Vykdoma tik su tag create_db)
+- name: Create DB VM
+  community.general.one_vm:
+    api_url: "{{ one_endpoint }}"
+    api_username: "{{ db_user_one }}"
+    api_password: "{{ db_pass_one }}"
+    template_id: "{{ template_id }}"
+    attributes:
+      NAME: db-vm
+    disk_size: "10 GB"
+    state: present # Užtikriname kad VM susikurtų
+    wait: yes
+    updateconf:
+      CONTEXT:
+        SSH_PUBLIC_KEY: "{{ lookup('file', '/root/.ssh/id_rsa.pub') }}" # Įdedame Ansible VM SSH raktą į DB VM
+        NETWORK: "YES" # Įjungiame tinklo konfiguraciją
+  register: db_vm_result # Išsaugome IP adresą, kaip kintamaji, kad galėtume sukurti inventory.ini
+  tags: create_db
+
+# 2. Web VM Kūrimas
+- name: Create Web VM
+  community.general.one_vm:
+    api_url: "{{ one_endpoint }}"
+    api_username: "{{ web_user_one }}"
+    api_password: "{{ web_pass_one }}"
+    template_id: "{{ template_id }}"
+    attributes:
+      NAME: web-vm
+    disk_size: "10 GB"
+    state: present
+    wait: yes
+    updateconf:
+      CONTEXT:
+        SSH_PUBLIC_KEY: "{{ lookup('file', '/root/.ssh/id_rsa.pub') }}"
+        NETWORK: "YES"
+  register: web_vm_result
+  tags: create_web
+
+# 3. Client VM Kūrimas
+- name: Create Client VM
+  community.general.one_vm:
+    api_url: "{{ one_endpoint }}"
+    api_username: "{{ client_user_one }}"
+    api_password: "{{ client_pass_one }}"
+    template_id: "{{ template_id }}"
+    attributes:
+      NAME: client-vm
+    disk_size: "10 GB"
+    state: present
+    wait: yes
+    updateconf:
+      CONTEXT:
+        SSH_PUBLIC_KEY: "{{ lookup('file', '/root/.ssh/id_rsa.pub') }}"
+        NETWORK: "YES"
+  register: client_vm_result
+  tags: create_client

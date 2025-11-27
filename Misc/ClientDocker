@@ -1,7 +1,8 @@
 # Šitą Dockerfile naudoju sukurti "kliento" konteineriui.
 # Mano konteineris turi atlikti tik vieną funkciją:  galėti pasiekti webserver'į ir tikrinti ar jis veikia.
 
-FROM debian:12-slim # Pasirenku labai lengvą Debian versiją, kad konteineris būtų mažas ir greitas.
+FROM debian:12-slim
+# Pasirenku labai lengvą Debian versiją, kad konteineris būtų mažas ir greitas.
 
 
 # Čia atnaujinu paketų sąrašą ir įdiegiau įrankius,
@@ -14,7 +15,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
       curl \
       iputils-ping \
       ca-certificates \
-    && rm -rf /var/lib/apt/lists/*   # Po instaliacijos išvalau apt cache, kad image būtų mažesnis.
+    && rm -rf /var/lib/apt/lists/*   
+# Po instaliacijos išvalau apt cache, kad image būtų mažesnis.
  
 # Nustatau darbinį katalogą konteinerio viduje.
 # Čia aš būsiu „įmestas“ kai prisijungsiu prie konteinerio su docker exec.

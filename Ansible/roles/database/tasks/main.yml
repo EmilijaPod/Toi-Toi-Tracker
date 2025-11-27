@@ -1,0 +1,37 @@
+---
+- name: Install Docker
+  apt:
+    name: [docker.io, python3-docker]
+    state: present
+    update_cache: yes # (apt-get update) atnaujinimui
+
+- name: Create DB Data Directory
+  file:
+    path: /opt/mysql_data # Direktorija duombazės failams saugoti
+    state: directory
+    mode: '0755' # (rwxr-xr-x)
+
+# Kopijuojame data į serverį
+- name: Copy SQL Data
+  copy:
+    src: "{{ role_path }}/files/data.sql"
+    dest: /opt/data.sql
+
+# Paleidžiame konteinerį su MariaDB
+- name: Run Docker Container
+  community.docker.docker_container:
+    name: toitoi_db
+    image: mariadb:10.11
+    state: started
+    restart_policy: always # automatinis paleidimas jei instaliacija sutriktų
+    ports:
+      - "3306:3306" # MariaDB standartiniai portai
+    # Paruošiamas environment
+    env:
+      MARIADB_ROOT_PASSWORD: "secret"
+      MARIADB_DATABASE: "toitoi"
+    volumes:
+      # Prijungiame data.sql į specialią direktoriją, kad pasileistu su DB
+      - "/opt/data.sql:/docker-entrypoint-initdb.d/data.sql"
+      # Kad išliktu duomenys po perkrovimo
+      - "/opt/mysql_data:/var/lib/mysql"

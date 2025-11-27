@@ -1,0 +1,27 @@
+# Apjungiantis failas visas roles
+---
+- name: Provisioning
+  hosts: localhost
+  connection: local
+  gather_facts: no
+  tags: provision
+  roles:
+    - provision
+
+- name: Database Setup
+  hosts: db_servers
+  remote_user: root
+  roles:
+    - database
+
+- name: Webserver Setup
+  hosts: web_servers
+  remote_user: root
+  roles:
+    - webserver
+
+- name: Client Setup
+  hosts: client_vms
+  remote_user: root
+  roles:
+    - client
