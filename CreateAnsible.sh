@@ -17,12 +17,12 @@ if ! command -v onevm &> /dev/null; then
     sudo rm -f /etc/apt/sources.list.d/opennebula.list
  
     # Atnaujiname ir įdiegiame reikiamas programas
-    sudo apt-get -o Acquire::Check-Valid-Until=false update -qq
-    sudo apt-get -o Acquire::Check-Valid-Until=false install -y -qq gnupg wget lsb-release
-    wget -q -O- https://downloads.opennebula.org/repo/repo.key | sudo apt-key add -
+	sudo apt update && sudo apt upgrade -y
+	sudo apt install -y gnupg
+	wget -q -O- https://downloads.opennebula.org/repo/repo.key | sudo apt-key add -
     echo "deb https://downloads.opennebula.org/repo/5.6/Ubuntu/18.04 stable opennebula" | sudo tee /etc/apt/sources.list.d/opennebula.list
-    sudo apt-get -o Acquire::Check-Valid-Until=false update -qq
-    sudo apt-get -o Acquire::Check-Valid-Until=false install -y -qq opennebula-tools
+    sudo apt update
+    sudo apt-get install opennebula-tools -y
 fi
 # -------------------------------------------
  
@@ -48,7 +48,7 @@ PUB_KEY=$(cat ~/.ssh/id_rsa.pub)
 # Pakeičiame kabutes į escapintas kabutes, kad tiktų komandinei eilutei
 PUB_KEY_ESCAPED=$(echo "$PUB_KEY" | sed 's/"/\\"/g')
  
-echo ">>> SSH raktas bus įkeltas per Cloud-Init context"
+echo ">>> SSH raktas bus įkeliamas"
  
 OUTPUT=$(onetemplate instantiate "2273" \
     --user "$CUSER" \
