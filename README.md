@@ -55,7 +55,7 @@
 3.  **Paleiskite naršyklę (Firefox)**:
     * Paspauskite **Alt + F2**.
     * Įrašykite `Firefox` ir paspauskite **Enter**.
-    * Palaukite, kol naršyklė įsijungs. Naudojantis **Tab** naršymui (QEMU ir pėlės problemos :c ) 
+    * Palaukite, kol naršyklė įsijungs. Naudojantis **Tab** naršymui (QEMU ir pelės problemos :c ) 
 
 4.  **Įveskite adresą** naršyklėje:
 
